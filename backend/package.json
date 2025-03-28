@@ -1,0 +1,46 @@
+{
+  "name": "fintech-backend",
+  "version": "1.0.0",
+  "description": "FinTech App Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "fintrack",
+    "finance",
+    "budget",
+    "tracking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.2.1",
+    "routing-controllers": "^0.10.4",
+    "typedi": "^0.10.0",
+    "typeorm": "^0.3.20",
+    "typeorm-typedi-extensions": "^0.4.1",
+    "dotenv": "^16.3.1",
+    "sqlite3": "^5.1.6",
+    "morgan": "^1.10.0",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3",
+    "nodemon": "^3.0.1"
+  }
+}
