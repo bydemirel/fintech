@@ -3,6 +3,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  password: string;
   avatar?: string;
 }
 
@@ -40,15 +41,92 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 function getUsersDatabase(): User[] {
   try {
     const usersJson = localStorage.getItem("users_db");
+    
+    // Demo kullanıcısını tanımlayalım
+    const demoUser: User = {
+      id: 1,
+      name: "Demo Kullanıcı",
+      email: "demo@example.com",
+      password: "demo123",
+      avatar: "https://i.pravatar.cc/150?img=1"
+    };
+    
+    // bariscandemirel35@gmail.com kullanıcısını tanımlayalım
+    const barisUser: User = {
+      id: 2,
+      name: "Barış Demirel",
+      email: "bariscandemirel35@gmail.com",
+      password: "123456",
+      avatar: "https://i.pravatar.cc/150?img=2"
+    };
+    
     if (!usersJson) {
-      // İlk kullanımda boş bir kullanıcı veritabanı oluştur
-      localStorage.setItem("users_db", JSON.stringify([]));
-      return [];
+      // İlk kullanımda boş bir kullanıcı veritabanı oluştur ve demo kullanıcılarını ekle
+      const initialUsers = [demoUser, barisUser];
+      localStorage.setItem("users_db", JSON.stringify(initialUsers));
+      return initialUsers;
     }
-    return JSON.parse(usersJson);
+    
+    // Mevcut kullanıcıları alıp eksik şifreleri ekleyelim
+    let users = JSON.parse(usersJson);
+    let updated = false;
+    
+    // Demo kullanıcısı var mı kontrol edelim, yoksa ekleyelim
+    if (!users.some((u: User) => u.email === "demo@example.com")) {
+      users.push(demoUser);
+      updated = true;
+    }
+    
+    // Barış kullanıcısı var mı kontrol edelim, yoksa ekleyelim
+    if (!users.some((u: User) => u.email === "bariscandemirel35@gmail.com")) {
+      users.push(barisUser);
+      updated = true;
+    }
+    
+    // Mevcut kullanıcılarda şifre yoksa ekleyelim
+    users = users.map((user: User) => {
+      if (!user.password) {
+        updated = true;
+        // Şifre yoksa, e-posta adresi bilinen kullanıcılar için özel şifre ekleyelim
+        if (user.email === "demo@example.com") {
+          return { ...user, password: "demo123" };
+        } else if (user.email === "bariscandemirel35@gmail.com") {
+          return { ...user, password: "123456" };
+        } else {
+          // Diğer kullanıcılar için varsayılan şifre
+          return { ...user, password: "default123" };
+        }
+      }
+      return user;
+    });
+    
+    // Değişiklik varsa veritabanını güncelleyelim
+    if (updated) {
+      localStorage.setItem("users_db", JSON.stringify(users));
+    }
+    
+    return users;
   } catch (error) {
     console.error("Kullanıcı veritabanı okunamadı:", error);
-    return [];
+    // Hata durumunda yeni bir veritabanı oluşturalım
+    const initialUsers = [
+      {
+        id: 1,
+        name: "Demo Kullanıcı",
+        email: "demo@example.com",
+        password: "demo123",
+        avatar: "https://i.pravatar.cc/150?img=1"
+      },
+      {
+        id: 2,
+        name: "Barış Demirel",
+        email: "bariscandemirel35@gmail.com",
+        password: "123456",
+        avatar: "https://i.pravatar.cc/150?img=2"
+      }
+    ];
+    localStorage.setItem("users_db", JSON.stringify(initialUsers));
+    return initialUsers;
   }
 }
 
@@ -113,25 +191,70 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
 // Giriş işlemi
 export async function login(credentials: LoginCredentials) {
   try {
-    // Kullanıcı veritabanını kontrol et
-    const users = getUsersDatabase();
-    const user = users.find(u => u.email === credentials.email);
+    console.log("Giriş denemesi:", credentials.email); // Debug için
     
+    // Özel kullanıcılar için hızlı giriş
+    if (credentials.email === "demo@example.com" && credentials.password === "demo123") {
+      const token = `token_1_${Date.now()}`;
+      const user = {
+        id: 1,
+        name: "Demo Kullanıcı",
+        email: "demo@example.com",
+        avatar: "https://i.pravatar.cc/150?img=1"
+      };
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log("Demo kullanıcısı girişi başarılı"); // Debug için
+      return { user, token };
+    }
+    
+    if (credentials.email === "bariscandemirel35@gmail.com" && credentials.password === "123456") {
+      const token = `token_2_${Date.now()}`;
+      const user = {
+        id: 2,
+        name: "Barış Demirel",
+        email: "bariscandemirel35@gmail.com",
+        avatar: "https://i.pravatar.cc/150?img=2"
+      };
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log("Barış kullanıcısı girişi başarılı"); // Debug için
+      return { user, token };
+    }
+    
+    // Normal giriş işlemi
+    const users = getUsersDatabase();
+    console.log("Kullanıcı veritabanı:", users.length, "kullanıcı"); // Debug için
+    
+    const user = users.find((u: User) => u.email === credentials.email);
     if (!user) {
+      console.log("Kullanıcı bulunamadı:", credentials.email); // Debug için
       throw new Error("Kullanıcı bulunamadı. Lütfen kayıt olun.");
     }
     
-    // Gerçek bir API'da şifre kontrolü yapılacaktır
-    // Burada basit bir simülasyon yapalım
+    // Şifre kontrolü - eğer kullanıcının şifresi yoksa kontrolü atla
+    if (user.password && user.password !== credentials.password) {
+      console.log("Şifre hatalı"); // Debug için
+      throw new Error("Hatalı şifre. Lütfen tekrar deneyin.");
+    }
     
     // Kullanıcı bulundu, oturum bilgilerini hazırla
     const mockToken = `token_${user.id}_${Date.now()}`;
     
+    // Şifre içermeyen kullanıcı bilgilerini hazırla
+    const userWithoutPassword = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar
+    };
+    
     // Oturum bilgilerini local storage'a kaydet
     localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(userWithoutPassword));
     
-    return { user, token: mockToken };
+    console.log("Giriş başarılı:", user.email); // Debug için
+    return { user: userWithoutPassword, token: mockToken };
   } catch (error) {
     console.error("Login error:", error);
     throw error instanceof Error ? error : new Error("Giriş başarısız. Email ve şifrenizi kontrol edin.");
@@ -145,15 +268,16 @@ export async function register(credentials: RegisterCredentials) {
     const users = getUsersDatabase();
     
     // Email adresi zaten kullanılıyor mu?
-    if (users.some(u => u.email === credentials.email)) {
+    if (users.some((u: User) => u.email === credentials.email)) {
       throw new Error("Bu email adresi zaten kullanılıyor.");
     }
     
     // Yeni kullanıcı oluştur
     const newUser: User = {
-      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+      id: users.length > 0 ? Math.max(...users.map((u: User) => u.id)) + 1 : 1,
       name: credentials.name,
       email: credentials.email,
+      password: credentials.password,
       avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`
     };
     
@@ -166,9 +290,22 @@ export async function register(credentials: RegisterCredentials) {
     
     // Oturum bilgilerini local storage'a kaydet
     localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem("user", JSON.stringify({
+      id: newUser.id, 
+      name: newUser.name, 
+      email: newUser.email,
+      avatar: newUser.avatar
+    }));
     
-    return { user: newUser, token: mockToken };
+    return { 
+      user: {
+        id: newUser.id, 
+        name: newUser.name, 
+        email: newUser.email,
+        avatar: newUser.avatar
+      }, 
+      token: mockToken 
+    };
   } catch (error) {
     console.error("Register error:", error);
     throw error instanceof Error ? error : new Error("Kayıt başarısız. Lütfen tekrar deneyin.");

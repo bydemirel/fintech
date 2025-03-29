@@ -18,7 +18,6 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { MoonIcon, SunIcon, GlobeIcon } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
@@ -156,11 +155,17 @@ export default function SettingsPage() {
                       {t("quicklyToggleDarkMode")}
                     </p>
                   </div>
-                  <Switch
+                  <button
                     id="dark-mode"
-                    checked={theme === "dark"}
-                    onCheckedChange={(checked) => handleThemeChange(checked ? "dark" : "light")}
-                  />
+                    className={`w-11 h-6 rounded-full transition-colors ${theme === "dark" ? "bg-blue-600" : "bg-gray-200"}`}
+                    onClick={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white transform transition-transform ${
+                        theme === "dark" ? "translate-x-5" : "translate-x-1"
+                      }`} 
+                    />
+                  </button>
                 </div>
               </CardContent>
             </Card>

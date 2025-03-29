@@ -1,9 +1,12 @@
-import { EntityRepository, Repository } from 'typeorm';
 import { User } from '../entities/User';
+import { AppDataSource } from '../data-source';
 
-@EntityRepository(User)
-export class UserRepository extends Repository<User> {
-  async findByEmail(email: string): Promise<User | null> {
-    return this.findOne({ where: { email } });
+// TypeORM 0.3.x'te özel repository sınıfları yerine doğrudan dataSource.getRepository kullanılmalıdır
+// Bu dosya artık kullanılmamaktadır ve sadece geriye dönük uyumluluk için tutulmaktadır
+
+// Eski repository metodlarını burada tutuyoruz
+export const UserRepository = {
+  findByEmail: async (email: string): Promise<User | null> => {
+    return AppDataSource.getRepository(User).findOne({ where: { email } });
   }
-} 
+}; 

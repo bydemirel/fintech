@@ -1,18 +1,20 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { UserRepository } from '../repositories/UserRepository';
+import { Repository } from 'typeorm';
 import { User } from '../entities/User';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { AppDataSource } from '../data-source';
 
 @Service()
 export class UserService {
-  constructor(
-    @InjectRepository() private userRepository: UserRepository
-  ) {}
+  private userRepository: Repository<User>;
+
+  constructor() {
+    this.userRepository = AppDataSource.getRepository(User);
+  }
 
   async register(userData: Partial<User>): Promise<User> {
-    const existingUser = await this.userRepository.findByEmail(userData.email);
+    const existingUser = await this.userRepository.findOne({ where: { email: userData.email } });
     if (existingUser) {
       throw new Error('Bu e-posta adresi zaten kullanımda');
     }
@@ -27,7 +29,7 @@ export class UserService {
   }
 
   async login(email: string, password: string): Promise<{ token: string; user: Partial<User> }> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.userRepository.findOne({ where: { email } });
     
     if (!user) {
       throw new Error('Geçersiz e-posta veya şifre');
