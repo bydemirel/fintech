@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { addTransaction, getCategoriesByType } from "@/lib/api";
+import { addTransaction, getCategories } from "@/lib/api";
 import { Category } from "@/lib/api";
 
 export default function NewTransactionPage() {
@@ -26,8 +26,10 @@ export default function NewTransactionPage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data = await getCategoriesByType(type);
-        setCategories(data);
+        const allCategories = await getCategories();
+        // Seçilen türe göre kategorileri filtrele
+        const filteredCategories = allCategories.filter(category => category.type === type);
+        setCategories(filteredCategories);
       } catch (err) {
         console.error("Kategoriler yüklenirken hata oluştu:", err);
         setError("Kategoriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.");
@@ -50,11 +52,16 @@ export default function NewTransactionPage() {
     }
 
     try {
+      // Kategori türüne göre tutar işaretini ayarla
+      const selectedCategory = categories.find(c => c.id === parseInt(categoryId));
+      const adjustedAmount = selectedCategory?.type === "expense" 
+        ? -Math.abs(parseFloat(amount)) 
+        : Math.abs(parseFloat(amount));
+
       // API'ye gönder
       await addTransaction({
         description,
-        amount: parseFloat(amount),
-        type,
+        amount: adjustedAmount,
         categoryId: parseInt(categoryId),
         date
       });
