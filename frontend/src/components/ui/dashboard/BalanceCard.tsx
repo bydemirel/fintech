@@ -14,8 +14,8 @@ export function BalanceCard({ balance, income, expense, currency }: BalanceCardP
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('tr-TR', { 
       style: 'currency', 
-      currency: currency || 'TRY',
-      minimumFractionDigits: 2
+      currency: 'TRY',
+      minimumFractionDigits: 0
     }).format(amount);
   };
 
