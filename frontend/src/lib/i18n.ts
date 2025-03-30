@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext, createContext } from 'react';
 import React from 'react';
 
 // Dil çevirileri
@@ -10,6 +10,12 @@ const translations = {
     transactions: "İşlemler",
     settings: "Ayarlar",
     logout: "Çıkış Yap",
+    user: "Kullanıcı",
+    authentication: "Kimlik Doğrulama",
+    login: "Giriş Yap",
+    register: "Hesap Oluştur",
+    forgotPassword: "Şifremi Unuttum",
+    footerText: "FinTech - Kişisel Finans Takip Uygulaması",
     
     // Dashboard
     incomeExpenseAnalysis: "Gelir & Gider Analizi",
@@ -90,6 +96,12 @@ const translations = {
     transactions: "Transactions",
     settings: "Settings",
     logout: "Logout",
+    user: "User",
+    authentication: "Authentication",
+    login: "Login",
+    register: "Register",
+    forgotPassword: "Forgot Password",
+    footerText: "FinTech - Personal Finance Tracking App",
     
     // Dashboard
     incomeExpenseAnalysis: "Income & Expense Analysis",
@@ -165,8 +177,18 @@ const translations = {
   }
 };
 
-// Dil context hook'u
-export function useTranslation() {
+// Context için tip tanımlaması
+type TranslationContextType = {
+  t: (key: string) => string;
+  language: 'tr' | 'en';
+  changeLanguage: (lang: 'tr' | 'en') => void;
+};
+
+// Context oluşturma
+const TranslationContext = createContext<TranslationContextType | null>(null);
+
+// Dil değiştirme hook'unun mantık kısmı
+function useTranslationLogic() {
   const [language, setLanguage] = useState<'tr' | 'en'>('tr');
 
   useEffect(() => {
@@ -177,21 +199,41 @@ export function useTranslation() {
     }
   }, []);
 
-  // Çeviri fonksiyonu - useCallback ile memoize ediyoruz
+  // Çeviri fonksiyonu
   const t = React.useCallback((key: string): string => {
     // @ts-ignore: translations içinde key'in varlığını kontrol ediyoruz
     return translations[language][key] || key;
-  }, [language]); // Sadece dil değiştiğinde fonksiyon değişecek
+  }, [language]);
 
-  // Dil değiştirme fonksiyonu - useCallback ile memoize ediyoruz
+  // Dil değiştirme fonksiyonu
   const changeLanguage = React.useCallback((lang: 'tr' | 'en') => {
     localStorage.setItem('language', lang);
     setLanguage(lang);
     document.documentElement.lang = lang;
-  }, []); // Değişmesi gerekmeyen bir fonksiyon
+  }, []);
 
-  // Memoize edilmiş değerler
-  return React.useMemo(() => {
-    return { t, language, changeLanguage };
-  }, [t, language, changeLanguage]);
+  return { t, language, changeLanguage };
+}
+
+// Context provider bileşeni
+export function TranslationProvider({ children }: { children: React.ReactNode }) {
+  const value = useTranslationLogic();
+  
+  return (
+    <TranslationContext.Provider value={value}>
+      {children}
+    </TranslationContext.Provider>
+  );
+}
+
+// Kullanım için hook
+export function useTranslation() {
+  const context = useContext(TranslationContext);
+  
+  if (!context) {
+    // Context dışında kullanılıyorsa kendi mantığını çalıştır
+    return useTranslationLogic();
+  }
+  
+  return context;
 } 

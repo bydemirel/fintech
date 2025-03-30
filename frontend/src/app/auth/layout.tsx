@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AuthLayout({
   children,
@@ -8,12 +9,13 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname() || "";
+  const { t } = useTranslation();
   
   // Sayfa başlığını belirle
-  let pageTitle = "Kimlik Doğrulama";
-  if (pathname.includes("/login")) pageTitle = "Giriş Yap";
-  if (pathname.includes("/register")) pageTitle = "Hesap Oluştur";
-  if (pathname.includes("/forgot-password")) pageTitle = "Şifremi Unuttum";
+  let pageTitle = t("authentication");
+  if (pathname.includes("/login")) pageTitle = t("login");
+  if (pathname.includes("/register")) pageTitle = t("register");
+  if (pathname.includes("/forgot-password")) pageTitle = t("forgotPassword");
   
   return (
     <>
@@ -31,7 +33,7 @@ export default function AuthLayout({
         
         <footer className="py-4 bg-gray-100 dark:bg-gray-800 text-center text-sm text-gray-600 dark:text-gray-400">
           <div className="container mx-auto px-4">
-            FinTech - Kişisel Finans Takip Uygulaması &copy; {new Date().getFullYear()}
+            {t("footerText")} &copy; {new Date().getFullYear()}
           </div>
         </footer>
       </div>
