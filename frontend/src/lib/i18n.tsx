@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, useContext, createContext } from 'react';
 import React from 'react';
 
@@ -53,6 +55,22 @@ const translations = {
     expense: "Gider",
     noTransactionsFound: "İşlem bulunamadı",
     difference: "Fark",
+    exportCSV: "CSV İndir",
+    deleteConfirmation: "Bu işlemi silmek istediğinize emin misiniz?",
+    deleteError: "İşlem silinemedi. Lütfen tekrar deneyin.",
+    manageAllTransactions: "Tüm gelir ve gider işlemlerinizi yönetin.",
+    advancedFilters: "Gelişmiş Filtreler",
+    allCategories: "Tüm kategoriler",
+    allTransactions: "Tüm işlemler",
+    descriptionOrContentSearch: "Açıklama veya içerik ara...",
+    apply: "Uygula",
+    totalBalance: "Toplam Bakiye",
+    delete: "Sil",
+    unknownCategory: "Bilinmeyen kategori",
+    showing: "Gösterilen",
+    of: "/",
+    previous: "Önceki",
+    next: "Sonraki",
     
     // Yeni İşlem
     addTransaction: "İşlem Ekle",
@@ -63,6 +81,12 @@ const translations = {
     selectDate: "Tarih Seçin",
     save: "Kaydet",
     cancel: "İptal",
+    showMore: "Daha Fazla Göster",
+    showMoreCategories: "Daha Fazla Kategori Göster (%count%)",
+    showLess: "Daha Az Göster",
+    noCategoriesFound: "Bu tipte kategori bulunamadı.",
+    transactionSuccess: "İşlem Başarılı!",
+    transactionSuccessMessage: "İşleminiz başarıyla kaydedildi. Ana sayfaya yönlendiriliyorsunuz...",
     
     // Ayarlar
     appearance: "Görünüm",
@@ -87,7 +111,30 @@ const translations = {
     
     // Hata mesajları
     errorLoadingData: "Veriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.",
-    errorFilteringTransactions: "İşlemler filtrelenirken bir hata oluştu."
+    errorFilteringTransactions: "İşlemler filtrelenirken bir hata oluştu.",
+    
+    // Kategoriler
+    categorySalary: "Maaş",
+    categoryExtraIncome: "Ek Gelir",
+    categoryGiftIncome: "Hediye",
+    categoryInvestment: "Yatırım",
+    categoryGrocery: "Market",
+    categoryRent: "Kira",
+    categoryBills: "Faturalar",
+    categoryEntertainment: "Eğlence",
+    categoryHealth: "Sağlık",
+    categoryTransport: "Ulaşım",
+    categoryClothing: "Giyim",
+    categoryRestaurant: "Restoran",
+    categoryElectronics: "Elektronik",
+    categoryEducation: "Eğitim",
+    categorySports: "Spor",
+    categoryBeauty: "Bakım & Kozmetik",
+    categoryHomeItems: "Ev Eşyaları",
+    categoryGiftsDonations: "Hediye & Bağış",
+    categoryTravel: "Tatil & Seyahat",
+    categoryInsurance: "Sigorta",
+    categoryOtherExpenses: "Diğer Giderler",
   },
   en: {
     // General
@@ -139,8 +186,24 @@ const translations = {
     expense: "Expense",
     noTransactionsFound: "No transactions found",
     difference: "Difference",
+    exportCSV: "Export CSV",
+    deleteConfirmation: "Are you sure you want to delete this transaction?",
+    deleteError: "Failed to delete the transaction. Please try again.",
+    manageAllTransactions: "Manage all your income and expense transactions.",
+    advancedFilters: "Advanced Filters",
+    allCategories: "All categories",
+    allTransactions: "All transactions",
+    descriptionOrContentSearch: "Search for description or content...",
+    apply: "Apply",
+    totalBalance: "Total Balance",
+    delete: "Delete",
+    unknownCategory: "Unknown category",
+    showing: "Showing",
+    of: "of",
+    previous: "Previous",
+    next: "Next",
     
-    // New Transaction
+    // Yeni İşlem
     addTransaction: "Add Transaction",
     enterTransactionDetails: "Enter transaction details",
     selectCategory: "Select Category",
@@ -149,6 +212,12 @@ const translations = {
     selectDate: "Select Date",
     save: "Save",
     cancel: "Cancel",
+    showMore: "Show More",
+    showMoreCategories: "Show More Categories (%count%)",
+    showLess: "Show Less",
+    noCategoriesFound: "No categories found for this type.",
+    transactionSuccess: "Transaction Successful!",
+    transactionSuccessMessage: "Your transaction has been successfully saved. You are being redirected to the dashboard...",
     
     // Settings
     appearance: "Appearance",
@@ -173,7 +242,30 @@ const translations = {
     
     // Error messages
     errorLoadingData: "Error loading data. Please refresh the page.",
-    errorFilteringTransactions: "Error filtering transactions."
+    errorFilteringTransactions: "Error filtering transactions.",
+    
+    // Categories
+    categorySalary: "Salary",
+    categoryExtraIncome: "Extra Income",
+    categoryGiftIncome: "Gift",
+    categoryInvestment: "Investment",
+    categoryGrocery: "Grocery",
+    categoryRent: "Rent",
+    categoryBills: "Bills",
+    categoryEntertainment: "Entertainment",
+    categoryHealth: "Health",
+    categoryTransport: "Transportation",
+    categoryClothing: "Clothing",
+    categoryRestaurant: "Restaurant",
+    categoryElectronics: "Electronics",
+    categoryEducation: "Education",
+    categorySports: "Sports",
+    categoryBeauty: "Beauty & Care",
+    categoryHomeItems: "Home Items",
+    categoryGiftsDonations: "Gifts & Donations",
+    categoryTravel: "Travel & Vacation",
+    categoryInsurance: "Insurance",
+    categoryOtherExpenses: "Other Expenses",
   }
 };
 

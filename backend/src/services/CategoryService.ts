@@ -1,27 +1,36 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { CategoryRepository } from '../repositories/CategoryRepository';
-import { TransactionRepository } from '../repositories/TransactionRepository';
+import { Repository } from 'typeorm';
 import { Category } from '../entities/Category';
+import { Transaction } from '../entities/Transaction';
+import { AppDataSource } from '../data-source';
 
 @Service()
 export class CategoryService {
-  constructor(
-    @InjectRepository() private categoryRepository: CategoryRepository,
-    @InjectRepository() private transactionRepository: TransactionRepository
-  ) {}
+  private categoryRepository: Repository<Category>;
+  private transactionRepository: Repository<Transaction>;
+
+  constructor() {
+    this.categoryRepository = AppDataSource.getRepository(Category);
+    this.transactionRepository = AppDataSource.getRepository(Transaction);
+  }
 
   async findByUserId(userId: number): Promise<Category[]> {
-    return this.categoryRepository.findByUserId(userId);
+    return this.categoryRepository.find({
+      where: { userId },
+      order: { name: 'ASC' }
+    });
   }
 
   async findByUserIdAndType(userId: number, type: 'income' | 'expense'): Promise<Category[]> {
-    return this.categoryRepository.findByUserIdAndType(userId, type);
+    return this.categoryRepository.find({
+      where: { userId, type },
+      order: { name: 'ASC' }
+    });
   }
 
   async createCategory(categoryData: Partial<Category>): Promise<Category> {
-    const category = this.categoryRepository.create(categoryData);
-    return this.categoryRepository.save(category);
+    const newCategory = this.categoryRepository.create(categoryData);
+    return this.categoryRepository.save(newCategory);
   }
 
   async updateCategory(id: number, userId: number, categoryData: Partial<Category>): Promise<Category> {
@@ -66,7 +75,7 @@ export class CategoryService {
       throw new Error('Kategori bulunamadı');
     }
 
-    // Bu kategoriye ait işlemler var mı kontrol et
+    // İlgili işlemlerin olup olmadığını kontrol et
     const transactions = await this.transactionRepository.find({
       where: { categoryId: id }
     });
@@ -75,6 +84,6 @@ export class CategoryService {
       throw new Error(`Bu kategoriye ait ${transactions.length} adet işlem bulunduğu için kategori silinemez`);
     }
 
-    await this.categoryRepository.remove(category);
+    await this.categoryRepository.delete(id);
   }
 } 

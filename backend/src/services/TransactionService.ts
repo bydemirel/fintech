@@ -1,18 +1,25 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { TransactionRepository } from '../repositories/TransactionRepository';
-import { CategoryRepository } from '../repositories/CategoryRepository';
+import { Repository, Between } from 'typeorm';
 import { Transaction } from '../entities/Transaction';
+import { Category } from '../entities/Category';
+import { AppDataSource } from '../data-source';
 
 @Service()
 export class TransactionService {
-  constructor(
-    @InjectRepository() private transactionRepository: TransactionRepository,
-    @InjectRepository() private categoryRepository: CategoryRepository
-  ) {}
+  private transactionRepository: Repository<Transaction>;
+  private categoryRepository: Repository<Category>;
+
+  constructor() {
+    this.transactionRepository = AppDataSource.getRepository(Transaction);
+    this.categoryRepository = AppDataSource.getRepository(Category);
+  }
 
   async findByUserId(userId: number): Promise<Transaction[]> {
-    return this.transactionRepository.findByUserId(userId);
+    return this.transactionRepository.find({
+      where: { userId },
+      relations: ['category'],
+      order: { date: 'DESC' }
+    });
   }
 
   async findByUserIdAndDateRange(
@@ -20,31 +27,39 @@ export class TransactionService {
     startDate: Date,
     endDate: Date
   ): Promise<Transaction[]> {
-    return this.transactionRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    return this.transactionRepository.find({
+      where: {
+        userId,
+        date: Between(startDate, endDate)
+      },
+      relations: ['category'],
+      order: { date: 'DESC' }
+    });
   }
 
   async findByUserIdAndType(
     userId: number,
     type: 'income' | 'expense'
   ): Promise<Transaction[]> {
-    return this.transactionRepository.findByUserIdAndType(userId, type);
+    return this.transactionRepository.find({
+      where: { userId, type },
+      relations: ['category'],
+      order: { date: 'DESC' }
+    });
   }
 
   async createTransaction(transactionData: Partial<Transaction>): Promise<Transaction> {
-    // Kategori kontrolü
+    // Kategori tipini kontrol et
     const category = await this.categoryRepository.findOne({ 
-      where: { 
-        id: transactionData.categoryId,
-        userId: transactionData.userId 
-      } 
+      where: { id: transactionData.categoryId } 
     });
 
     if (!category) {
       throw new Error('Kategori bulunamadı');
     }
 
-    // İşlem türü ve kategori türü uyumlu olmalı
-    if (category.type !== transactionData.type) {
+    // Kullanıcı, kategorinin tipine uygun işlem eklemelidir
+    if (transactionData.type !== category.type) {
       throw new Error(`Bu kategori ${transactionData.type} türünde bir işlem için kullanılamaz`);
     }
 
@@ -57,48 +72,47 @@ export class TransactionService {
     userId: number,
     transactionData: Partial<Transaction>
   ): Promise<Transaction> {
+    // İşlemi bul
     const transaction = await this.transactionRepository.findOne({ 
-      where: { 
-        id, 
-        userId 
-      } 
+      where: { id, userId } 
     });
 
     if (!transaction) {
       throw new Error('İşlem bulunamadı');
     }
 
-    // Kategori değiştiyse kontrol et
-    if (transactionData.categoryId && transactionData.categoryId !== transaction.categoryId) {
+    // Kategori değiştiriliyorsa kontrolü yap
+    if (transactionData.categoryId && transaction.categoryId !== transactionData.categoryId) {
       const category = await this.categoryRepository.findOne({ 
-        where: { 
-          id: transactionData.categoryId,
-          userId
-        } 
+        where: { id: transactionData.categoryId } 
       });
 
       if (!category) {
         throw new Error('Kategori bulunamadı');
       }
 
-      // Tür değişmediyse, kategori türü işlem türüyle uyumlu olmalı
+      // İşlem tipi varsa onu, yoksa mevcut işlem tipini kullan
       const type = transactionData.type || transaction.type;
+
+      // Kategori tipi ile işlem tipi uyumlu olmalı
       if (category.type !== type) {
         throw new Error(`Bu kategori ${type} türünde bir işlem için kullanılamaz`);
       }
     }
 
+    // İşlemi güncelle
     await this.transactionRepository.update(id, transactionData);
-    
+
+    // Güncellenmiş işlemi al
     const updatedTransaction = await this.transactionRepository.findOne({ 
       where: { id },
       relations: ['category']
     });
-    
+
     if (!updatedTransaction) {
       throw new Error('İşlem güncellenemedi');
     }
-    
+
     return updatedTransaction;
   }
 
@@ -111,6 +125,6 @@ export class TransactionService {
       throw new Error('İşlem bulunamadı');
     }
 
-    await this.transactionRepository.remove(transaction);
+    await this.transactionRepository.delete(id);
   }
 } 

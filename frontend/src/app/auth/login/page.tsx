@@ -33,6 +33,29 @@ export default function LoginPage() {
     }
   };
 
+  // Demo hesabı ile giriş
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError("");
+    
+    try {
+      // State'i değiştirip form gönderimi simüle etmek yerine doğrudan login fonksiyonunu çağır
+      await login({ email: "demo@example.com", password: "demo123" });
+      
+      // UI'ı güncelle (opsiyonel, artık giriş yapıldı)
+      setEmail("demo@example.com");
+      setPassword("demo123");
+      
+      // Başarılı giriş sonrası yönlendirme
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Demo girişi sırasında bir hata oluştu");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Yükleme Overlay */}
@@ -116,20 +139,15 @@ export default function LoginPage() {
             </div>
           </div>
           
-          <div className="mt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="w-full" 
-              disabled={loading}
-              onClick={() => {
-                setEmail("deneme@example.com");
-                setPassword("123456");
-              }}
-            >
-              Demo Hesabı ile Giriş Yap
-            </Button>
-          </div>
+          {/* Demo hesabı ile giriş butonu */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleDemoLogin}
+            disabled={loading}
+          >
+            Demo Hesabı ile Giriş Yap
+          </Button>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">

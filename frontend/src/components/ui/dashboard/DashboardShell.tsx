@@ -31,7 +31,7 @@ interface UserData {
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userData, setUserData] = useState<UserData>({});
@@ -57,7 +57,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     router.push("/auth/login");
   };
 
-  const navItems = [
+  const navItems = React.useMemo(() => [
     {
       title: t("dashboard"),
       href: "/dashboard",
@@ -78,7 +78,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
       href: "/settings",
       icon: <Settings size={20} />,
     },
-  ];
+  ], [t, language]);
 
   return (
     <div className="min-h-screen w-full flex">
@@ -163,7 +163,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </div>
             {!isCollapsed && (
               <div className="grid gap-1 flex-1 min-w-0">
-                <p className="font-medium truncate">{userData.name || "Kullanıcı"}</p>
+                <p className="font-medium truncate">{userData.name || t("user")}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userData.email || "user@example.com"}</p>
               </div>
             )}

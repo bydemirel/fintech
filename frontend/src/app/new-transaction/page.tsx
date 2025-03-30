@@ -9,21 +9,28 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { tr } from 'date-fns/locale';
+import { tr, enUS } from 'date-fns/locale';
 import { CalendarIcon, SaveIcon, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Category, addTransaction, getCategories } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "@/lib/i18n";
 
 export default function NewTransactionPage() {
   const router = useRouter();
+  const { t, language } = useTranslation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+
+  // Date locale based on selected language
+  const dateLocale = language === 'tr' ? tr : enUS;
 
   // Yeni işlem için form state'i
   const [formData, setFormData] = useState({
@@ -51,14 +58,14 @@ export default function NewTransactionPage() {
         }
       } catch (err) {
         console.error("Veri yüklenirken hata:", err);
-        setError("Kategoriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.");
+        setError(t("errorLoadingData"));
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [transactionType]);
+  }, [transactionType, t]);
 
   // Form değişiklikleri
   const handleChange = (
@@ -78,6 +85,7 @@ export default function NewTransactionPage() {
         ...prev,
         date,
       }));
+      setDatePopoverOpen(false); // Tarih seçildiğinde popover'ı kapat
     }
   };
 
@@ -101,17 +109,17 @@ export default function NewTransactionPage() {
     
     // Validasyon
     if (!formData.description.trim()) {
-      setError("Lütfen bir açıklama girin.");
+      setError(t("enterDescription"));
       return;
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setError("Lütfen geçerli bir tutar girin.");
+      setError(t("enterAmount"));
       return;
     }
 
     if (!formData.categoryId) {
-      setError("Lütfen bir kategori seçin.");
+      setError(t("selectCategory"));
       return;
     }
 
@@ -148,7 +156,7 @@ export default function NewTransactionPage() {
       }, 2000);
     } catch (err) {
       console.error("İşlem eklenirken hata:", err);
-      setError("İşlem eklenirken bir hata oluştu. Lütfen tekrar deneyin.");
+      setError(t("errorLoadingData"));
     } finally {
       setSubmitLoading(false);
     }
@@ -159,6 +167,13 @@ export default function NewTransactionPage() {
     category => category.type === transactionType
   );
 
+  // Temel ve ek kategorileri ayır
+  const basicCategories = filteredCategories.filter(category => category.isBasic);
+  const additionalCategories = filteredCategories.filter(category => !category.isBasic);
+  
+  // Gösterilecek kategorileri belirle
+  const categoriesToShow = showAllCategories ? filteredCategories : basicCategories;
+
   // Kategori seçili mi?
   const selectedCategory = categories.find(
     category => category.id === formData.categoryId
@@ -168,24 +183,24 @@ export default function NewTransactionPage() {
     <DashboardShell>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Yeni İşlem</h1>
+          <h1 className="text-3xl font-bold">{t("newTransaction")}</h1>
           <p className="text-muted-foreground">
-            Yeni bir gelir veya gider işlemi ekleyin.
+            {t("enterTransactionDetails")}
           </p>
         </div>
 
         {success ? (
           <div className="rounded-lg border p-8 flex flex-col items-center justify-center bg-green-50 text-green-900 space-y-4">
             <CheckCircle2 className="h-16 w-16 text-green-500" />
-            <h2 className="text-2xl font-bold">İşlem Başarılı!</h2>
-            <p>İşleminiz başarıyla kaydedildi. Ana sayfaya yönlendiriliyorsunuz...</p>
+            <h2 className="text-2xl font-bold">{t("transactionSuccess")}</h2>
+            <p>{t("transactionSuccessMessage")}</p>
           </div>
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>İşlem Bilgileri</CardTitle>
+              <CardTitle>{t("addTransaction")}</CardTitle>
               <CardDescription>
-                Eklemek istediğiniz işlem detaylarını girin.
+                {t("enterTransactionDetails")}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
@@ -199,7 +214,7 @@ export default function NewTransactionPage() {
 
                 {/* İşlem Tipi Seçimi */}
                 <div className="space-y-2">
-                  <Label>İşlem Tipi</Label>
+                  <Label>{t("transactionType")}</Label>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
                       type="button"
@@ -210,7 +225,7 @@ export default function NewTransactionPage() {
                       )}
                       onClick={() => handleTypeChange("expense")}
                     >
-                      <span>Gider</span>
+                      <span>{t("expense")}</span>
                     </Button>
                     <Button
                       type="button"
@@ -221,18 +236,18 @@ export default function NewTransactionPage() {
                       )}
                       onClick={() => handleTypeChange("income")}
                     >
-                      <span>Gelir</span>
+                      <span>{t("income")}</span>
                     </Button>
                   </div>
                 </div>
 
                 {/* Açıklama */}
                 <div className="space-y-2">
-                  <Label htmlFor="description">Açıklama</Label>
+                  <Label htmlFor="description">{t("description")}</Label>
                   <Textarea
                     id="description"
                     name="description"
-                    placeholder="Örn: Market alışverişi"
+                    placeholder={t("enterDescription")}
                     value={formData.description}
                     onChange={handleChange}
                   />
@@ -240,7 +255,7 @@ export default function NewTransactionPage() {
 
                 {/* Tutar */}
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Tutar (₺)</Label>
+                  <Label htmlFor="amount">{t("amount")} (₺)</Label>
                   <Input
                     id="amount"
                     name="amount"
@@ -255,8 +270,8 @@ export default function NewTransactionPage() {
 
                 {/* Tarih Seçimi */}
                 <div className="space-y-2">
-                  <Label htmlFor="date">Tarih</Label>
-                  <Popover>
+                  <Label htmlFor="date">{t("date")}</Label>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -267,9 +282,9 @@ export default function NewTransactionPage() {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.date ? (
-                          format(formData.date, "PPP", { locale: tr })
+                          format(formData.date, "d MMM yyyy", { locale: dateLocale })
                         ) : (
-                          <span>Tarih seçin</span>
+                          <span>{t("selectDate")}</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -279,6 +294,8 @@ export default function NewTransactionPage() {
                         selected={formData.date}
                         onSelect={handleDateChange}
                         initialFocus
+                        locale={dateLocale}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -286,36 +303,60 @@ export default function NewTransactionPage() {
 
                 {/* Kategori Seçimi */}
                 <div className="space-y-2">
-                  <Label htmlFor="categoryId">Kategori</Label>
+                  <Label htmlFor="categoryId">{t("category")}</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {loading ? (
                       <div className="col-span-full flex justify-center items-center min-h-[100px]">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                       </div>
-                    ) : filteredCategories.length > 0 ? (
-                      filteredCategories.map((category) => (
-                        <div
-                          key={category.id}
-                          className={cn(
-                            "border rounded-md p-3 cursor-pointer transition-all hover:border-blue-500",
-                            formData.categoryId === category.id
-                              ? "border-blue-500 ring-2 ring-blue-500/20"
-                              : "border-gray-200"
-                          )}
-                          onClick={() => setFormData(prev => ({ ...prev, categoryId: category.id }))}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: category.color }}
-                            ></div>
-                            <span>{category.name}</span>
+                    ) : categoriesToShow.length > 0 ? (
+                      <>
+                        {categoriesToShow.map((category) => (
+                          <div
+                            key={category.id}
+                            className={cn(
+                              "border rounded-md p-3 cursor-pointer transition-all hover:border-blue-500",
+                              formData.categoryId === category.id
+                                ? "border-blue-500 ring-2 ring-blue-500/20"
+                                : "border-gray-200"
+                            )}
+                            onClick={() => setFormData(prev => ({ ...prev, categoryId: category.id }))}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-4 h-4 rounded-full"
+                                style={{ backgroundColor: category.color }}
+                              ></div>
+                              <span>{category.translationKey ? t(category.translationKey) : category.name}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                        
+                        {/* Daha Fazla Göster / Daha Az Göster Düğmesi */}
+                        {additionalCategories.length > 0 && (
+                          <div 
+                            className="col-span-full mt-2"
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full text-center"
+                              onClick={() => setShowAllCategories(!showAllCategories)}
+                            >
+                              {showAllCategories ? (
+                                <span>{t("showLess")}</span>
+                              ) : (
+                                <span>
+                                  {t("showMoreCategories").replace("%count%", additionalCategories.length.toString())}
+                                </span>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <div className="col-span-full text-center text-gray-500">
-                        Bu tipte kategori bulunamadı.
+                        {t("noCategoriesFound")}
                       </div>
                     )}
                   </div>
@@ -327,7 +368,7 @@ export default function NewTransactionPage() {
                   variant="outline"
                   onClick={() => router.back()}
                 >
-                  İptal
+                  {t("cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -342,12 +383,12 @@ export default function NewTransactionPage() {
                   {submitLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Kaydediliyor...</span>
+                      <span>{t("saving")}</span>
                     </>
                   ) : (
                     <>
                       <SaveIcon className="h-4 w-4" />
-                      <span>Kaydet</span>
+                      <span>{t("save")}</span>
                     </>
                   )}
                 </Button>

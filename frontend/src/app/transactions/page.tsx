@@ -25,10 +25,11 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { tr } from 'date-fns/locale';
+import { tr, enUS } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 
 // İşlem filtreleme formu
 const FilterForm = ({
@@ -42,6 +43,11 @@ const FilterForm = ({
   categories: Category[];
   onFilter: () => void;
 }) => {
+  const { t, language } = useTranslation();
+  const dateLocale = language === 'tr' ? tr : enUS;
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+  
   // Tarih seçimi işlevi
   const handleDateSelect = (field: string, date: Date | undefined) => {
     if (date) {
@@ -49,6 +55,13 @@ const FilterForm = ({
         ...filters,
         [field]: date,
       });
+      
+      // Popover'ı kapat
+      if (field === "startDate") {
+        setStartDateOpen(false);
+      } else if (field === "endDate") {
+        setEndDateOpen(false);
+      }
     }
   };
 
@@ -56,8 +69,8 @@ const FilterForm = ({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Başlangıç Tarihi</Label>
-          <Popover>
+          <Label>{t("startDate")}</Label>
+          <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -68,9 +81,9 @@ const FilterForm = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.startDate ? (
-                  format(filters.startDate, "PPP", { locale: tr })
+                  format(filters.startDate, "d MMM yyyy", { locale: dateLocale })
                 ) : (
-                  <span>Tarih seçin</span>
+                  <span>{t("selectDate")}</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -80,13 +93,15 @@ const FilterForm = ({
                 selected={filters.startDate}
                 onSelect={(date) => handleDateSelect("startDate", date)}
                 initialFocus
+                locale={dateLocale}
+                className="rounded-md border"
               />
             </PopoverContent>
           </Popover>
         </div>
         <div className="space-y-2">
-          <Label>Bitiş Tarihi</Label>
-          <Popover>
+          <Label>{t("endDate")}</Label>
+          <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -97,9 +112,9 @@ const FilterForm = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.endDate ? (
-                  format(filters.endDate, "PPP", { locale: tr })
+                  format(filters.endDate, "d MMM yyyy", { locale: dateLocale })
                 ) : (
-                  <span>Tarih seçin</span>
+                  <span>{t("selectDate")}</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -109,6 +124,8 @@ const FilterForm = ({
                 selected={filters.endDate}
                 onSelect={(date) => handleDateSelect("endDate", date)}
                 initialFocus
+                locale={dateLocale}
+                className="rounded-md border"
               />
             </PopoverContent>
           </Popover>
@@ -117,7 +134,7 @@ const FilterForm = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Kategori</Label>
+          <Label>{t("category")}</Label>
           <Select
             value={filters.categoryId?.toString() || "all"}
             onValueChange={(value) =>
@@ -128,10 +145,10 @@ const FilterForm = ({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Tüm kategoriler" />
+              <SelectValue placeholder={t("allCategories")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tüm kategoriler</SelectItem>
+              <SelectItem value="all">{t("allCategories")}</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id.toString()}>
                   <div className="flex items-center gap-2">
@@ -139,7 +156,7 @@ const FilterForm = ({
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: category.color }}
                     ></div>
-                    <span>{category.name}</span>
+                    <span>{category.translationKey ? t(category.translationKey) : category.name}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -147,7 +164,7 @@ const FilterForm = ({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>İşlem Tipi</Label>
+          <Label>{t("transactionType")}</Label>
           <Select
             value={filters.type || "all"}
             onValueChange={(value) =>
@@ -158,23 +175,23 @@ const FilterForm = ({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Tüm işlemler" />
+              <SelectValue placeholder={t("allTransactions")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tüm işlemler</SelectItem>
-              <SelectItem value="income">Gelir</SelectItem>
-              <SelectItem value="expense">Gider</SelectItem>
+              <SelectItem value="all">{t("allTransactions")}</SelectItem>
+              <SelectItem value="income">{t("income")}</SelectItem>
+              <SelectItem value="expense">{t("expense")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div>
-        <Label>Açıklama</Label>
+        <Label>{t("description")}</Label>
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Açıklama veya içerik ara..."
+            placeholder={t("descriptionOrContentSearch")}
             className="pl-8"
             value={filters.description || ""}
             onChange={(e) =>
@@ -200,9 +217,9 @@ const FilterForm = ({
             })
           }
         >
-          Filtreleri Temizle
+          {t("clearFilters")}
         </Button>
-        <Button onClick={onFilter}>Uygula</Button>
+        <Button onClick={onFilter}>{t("apply")}</Button>
       </div>
     </div>
   );
@@ -210,6 +227,8 @@ const FilterForm = ({
 
 export default function TransactionsPage() {
   const router = useRouter();
+  const { t, language } = useTranslation();
+  const dateLocale = language === 'tr' ? tr : enUS;
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -382,12 +401,12 @@ export default function TransactionsPage() {
   // Tarih formatı
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return format(date, "dd MMM yyyy", { locale: tr });
+    return format(date, "d MMM yyyy", { locale: dateLocale });
   };
 
   // İşlem silme
   const handleDeleteTransaction = async (id: number) => {
-    if (window.confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
+    if (window.confirm(t("deleteConfirmation"))) {
       try {
         // API üzerinden işlemi sil
         await deleteTransaction(id);
@@ -402,7 +421,7 @@ export default function TransactionsPage() {
         );
       } catch (error) {
         console.error("İşlem silinirken hata:", error);
-        alert("İşlem silinemedi. Lütfen tekrar deneyin.");
+        alert(t("deleteError"));
       }
     }
   };
@@ -424,7 +443,7 @@ export default function TransactionsPage() {
       const row = [
         `"${formattedDate}"`,
         `"${transaction.description}"`,
-        `"${category?.name || "Bilinmeyen"}"`,
+        `"${category?.translationKey ? t(category.translationKey) : category?.name || "Bilinmeyen"}"`,
         `"${formatCurrency(transaction.amount)}"`,
         `"${type}"`,
       ];
@@ -460,7 +479,7 @@ export default function TransactionsPage() {
         <div className="flex justify-center items-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600">Veriler yükleniyor...</p>
+            <p className="text-lg text-gray-600">{t("loading")}</p>
           </div>
         </div>
       );
@@ -474,7 +493,7 @@ export default function TransactionsPage() {
             className="mt-2"
             onClick={() => window.location.reload()}
           >
-            Yeniden Dene
+            {t("retry")}
           </Button>
         </div>
       );
@@ -485,13 +504,13 @@ export default function TransactionsPage() {
       return (
         <div className="flex flex-col gap-6">
           <div className="flex justify-between gap-4">
-            <h1 className="text-3xl font-bold">İşlemler</h1>
+            <h1 className="text-3xl font-bold">{t("transactionList")}</h1>
           </div>
           
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
-            <h2 className="text-xl font-semibold mb-4">Henüz işlem bulunmuyor</h2>
+            <h2 className="text-xl font-semibold mb-4">{t("noTransactionsYet")}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              Henüz hiç işlem eklemediniz. Finans durumunuzu takip etmek için yeni bir işlem ekleyerek başlayabilirsiniz.
+              {t("noTransactionsMessage")}
             </p>
             <div className="flex justify-center">
               <Button
@@ -499,7 +518,7 @@ export default function TransactionsPage() {
                 onClick={() => router.push("/new-transaction")}
               >
                 <Plus size={16} />
-                <span>Yeni İşlem</span>
+                <span>{t("addNewTransaction")}</span>
               </Button>
             </div>
           </div>
@@ -528,9 +547,9 @@ export default function TransactionsPage() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">İşlemler</h1>
+            <h1 className="text-3xl font-bold">{t("transactionList")}</h1>
             <p className="text-muted-foreground">
-              Tüm gelir ve gider işlemlerinizi yönetin.
+              {t("manageAllTransactions")}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -540,7 +559,7 @@ export default function TransactionsPage() {
               onClick={() => setIsFilterOpen(!isFilterOpen)}
             >
               <SlidersHorizontal size={16} />
-              <span>Filtrele</span>
+              <span>{t("filter")}</span>
             </Button>
             <Button
               variant="outline"
@@ -548,14 +567,14 @@ export default function TransactionsPage() {
               onClick={handleExportCSV}
             >
               <Download size={16} />
-              <span>CSV İndir</span>
+              <span>{t("exportCSV")}</span>
             </Button>
             <Button
               className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
               onClick={() => router.push("/new-transaction")}
             >
               <Plus size={16} />
-              <span>Yeni İşlem</span>
+              <span>{t("addNewTransaction")}</span>
             </Button>
           </div>
         </div>
@@ -565,7 +584,7 @@ export default function TransactionsPage() {
           <CollapsibleContent>
             <Card className="bg-muted/40">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Gelişmiş Filtreler</CardTitle>
+                <CardTitle className="text-lg">{t("advancedFilters")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <FilterForm
@@ -583,7 +602,7 @@ export default function TransactionsPage() {
           <Card className="bg-blue-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-blue-800">
-                Toplam Bakiye
+                {t("totalBalance")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -595,7 +614,7 @@ export default function TransactionsPage() {
           <Card className="bg-green-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-800">
-                Toplam Gelir
+                {t("totalIncome")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -607,7 +626,7 @@ export default function TransactionsPage() {
           <Card className="bg-red-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-red-800">
-                Toplam Gider
+                {t("totalExpense")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -620,7 +639,7 @@ export default function TransactionsPage() {
 
         <Card>
           <CardHeader className="pb-1">
-            <CardTitle>İşlem Listesi</CardTitle>
+            <CardTitle>{t("transactionList")}</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -628,11 +647,11 @@ export default function TransactionsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead
-                      className="w-[120px] cursor-pointer"
+                      className="w-[140px] cursor-pointer"
                       onClick={() => handleSort("date")}
                     >
                       <div className="flex items-center gap-1">
-                        <span>Tarih</span>
+                        <span>{t("date")}</span>
                         {renderSortIcon("date")}
                       </div>
                     </TableHead>
@@ -641,7 +660,7 @@ export default function TransactionsPage() {
                       onClick={() => handleSort("description")}
                     >
                       <div className="flex items-center gap-1">
-                        <span>Açıklama</span>
+                        <span>{t("description")}</span>
                         {renderSortIcon("description")}
                       </div>
                     </TableHead>
@@ -650,7 +669,7 @@ export default function TransactionsPage() {
                       onClick={() => handleSort("category")}
                     >
                       <div className="flex items-center gap-1">
-                        <span>Kategori</span>
+                        <span>{t("category")}</span>
                         {renderSortIcon("category")}
                       </div>
                     </TableHead>
@@ -659,11 +678,13 @@ export default function TransactionsPage() {
                       onClick={() => handleSort("amount")}
                     >
                       <div className="flex items-center justify-end gap-1">
-                        <span>Tutar</span>
+                        <span>{t("amount")}</span>
                         {renderSortIcon("amount")}
                       </div>
                     </TableHead>
-                    <TableHead className="w-[80px] text-right">İşlem</TableHead>
+                    <TableHead className="text-right">
+                      {t("actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -673,7 +694,7 @@ export default function TransactionsPage() {
                         colSpan={5}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        Gösterilecek işlem bulunamadı.
+                        {t("noTransactionsFound")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -685,7 +706,7 @@ export default function TransactionsPage() {
 
                       return (
                         <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium whitespace-nowrap">
                             {formatDate(transaction.date)}
                           </TableCell>
                           <TableCell>{transaction.description}</TableCell>
@@ -693,16 +714,15 @@ export default function TransactionsPage() {
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: category?.color }}
+                                style={{ backgroundColor: category?.color || "#999" }}
                               ></div>
-                              <span>{category?.name}</span>
+                              <span>{category?.translationKey ? t(category.translationKey) : category?.name || t("unknownCategory")}</span>
                             </div>
                           </TableCell>
                           <TableCell
-                            className={cn(
-                              "text-right font-medium",
+                            className={`text-right font-medium ${
                               isIncome ? "text-green-700" : "text-red-700"
-                            )}
+                            }`}
                           >
                             {isIncome ? "+" : "-"}
                             {formatCurrency(Math.abs(transaction.amount))}
@@ -713,7 +733,7 @@ export default function TransactionsPage() {
                               size="icon"
                               className="h-8 w-8 text-red-600"
                               onClick={() => handleDeleteTransaction(transaction.id)}
-                              title="Sil"
+                              title={t("delete")}
                             >
                               <Trash2 size={16} />
                             </Button>
