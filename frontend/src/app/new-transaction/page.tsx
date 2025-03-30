@@ -24,6 +24,7 @@ export default function NewTransactionPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Yeni işlem için form state'i
   const [formData, setFormData] = useState({
@@ -159,6 +160,13 @@ export default function NewTransactionPage() {
     category => category.type === transactionType
   );
 
+  // Temel ve ek kategorileri ayır
+  const basicCategories = filteredCategories.filter(category => category.isBasic);
+  const additionalCategories = filteredCategories.filter(category => !category.isBasic);
+  
+  // Gösterilecek kategorileri belirle
+  const categoriesToShow = showAllCategories ? filteredCategories : basicCategories;
+
   // Kategori seçili mi?
   const selectedCategory = categories.find(
     category => category.id === formData.categoryId
@@ -292,27 +300,49 @@ export default function NewTransactionPage() {
                       <div className="col-span-full flex justify-center items-center min-h-[100px]">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                       </div>
-                    ) : filteredCategories.length > 0 ? (
-                      filteredCategories.map((category) => (
-                        <div
-                          key={category.id}
-                          className={cn(
-                            "border rounded-md p-3 cursor-pointer transition-all hover:border-blue-500",
-                            formData.categoryId === category.id
-                              ? "border-blue-500 ring-2 ring-blue-500/20"
-                              : "border-gray-200"
-                          )}
-                          onClick={() => setFormData(prev => ({ ...prev, categoryId: category.id }))}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: category.color }}
-                            ></div>
-                            <span>{category.name}</span>
+                    ) : categoriesToShow.length > 0 ? (
+                      <>
+                        {categoriesToShow.map((category) => (
+                          <div
+                            key={category.id}
+                            className={cn(
+                              "border rounded-md p-3 cursor-pointer transition-all hover:border-blue-500",
+                              formData.categoryId === category.id
+                                ? "border-blue-500 ring-2 ring-blue-500/20"
+                                : "border-gray-200"
+                            )}
+                            onClick={() => setFormData(prev => ({ ...prev, categoryId: category.id }))}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-4 h-4 rounded-full"
+                                style={{ backgroundColor: category.color }}
+                              ></div>
+                              <span>{category.name}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                        
+                        {/* Daha Fazla Göster / Daha Az Göster Düğmesi */}
+                        {additionalCategories.length > 0 && (
+                          <div 
+                            className="col-span-full mt-2"
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full text-center"
+                              onClick={() => setShowAllCategories(!showAllCategories)}
+                            >
+                              {showAllCategories ? (
+                                <span>Daha Az Göster</span>
+                              ) : (
+                                <span>Daha Fazla Kategori Göster ({additionalCategories.length})</span>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <div className="col-span-full text-center text-gray-500">
                         Bu tipte kategori bulunamadı.

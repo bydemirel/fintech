@@ -12,6 +12,7 @@ export interface Category {
   name: string;
   type: "income" | "expense";
   color: string;
+  isBasic?: boolean; // Temel kategorileri işaretlemek için
 }
 
 export interface Transaction {
@@ -356,16 +357,32 @@ export async function getCategories(): Promise<Category[]> {
     
     // Varsayılan kategori listesi - API entegrasyonu sırasında kaldırılacak
     return [
-      { id: 1, name: "Maaş", type: "income", color: "#10b981" },
-      { id: 2, name: "Ek Gelir", type: "income", color: "#06b6d4" },
-      { id: 3, name: "Hediye", type: "income", color: "#8b5cf6" },
-      { id: 4, name: "Yatırım", type: "income", color: "#3b82f6" },
-      { id: 5, name: "Market", type: "expense", color: "#ef4444" },
-      { id: 6, name: "Kira", type: "expense", color: "#f97316" },
-      { id: 7, name: "Faturalar", type: "expense", color: "#f59e0b" },
-      { id: 8, name: "Eğlence", type: "expense", color: "#84cc16" },
-      { id: 9, name: "Sağlık", type: "expense", color: "#14b8a6" },
-      { id: 10, name: "Ulaşım", type: "expense", color: "#6366f1" },
+      // Gelir Kategorileri
+      { id: 1, name: "Maaş", type: "income", color: "#10b981", isBasic: true },
+      { id: 2, name: "Ek Gelir", type: "income", color: "#06b6d4", isBasic: true },
+      { id: 3, name: "Hediye", type: "income", color: "#8b5cf6", isBasic: true },
+      { id: 4, name: "Yatırım", type: "income", color: "#3b82f6", isBasic: true },
+      
+      // Temel Gider Kategorileri
+      { id: 5, name: "Market", type: "expense", color: "#ef4444", isBasic: true },
+      { id: 6, name: "Kira", type: "expense", color: "#f97316", isBasic: true },
+      { id: 7, name: "Faturalar", type: "expense", color: "#f59e0b", isBasic: true },
+      { id: 8, name: "Eğlence", type: "expense", color: "#84cc16", isBasic: true },
+      { id: 9, name: "Sağlık", type: "expense", color: "#14b8a6", isBasic: true },
+      { id: 10, name: "Ulaşım", type: "expense", color: "#6366f1", isBasic: true },
+      
+      // Ek Gider Kategorileri
+      { id: 11, name: "Giyim", type: "expense", color: "#8b5cf6", isBasic: false },
+      { id: 12, name: "Restoran", type: "expense", color: "#ec4899", isBasic: false },
+      { id: 13, name: "Elektronik", type: "expense", color: "#06b6d4", isBasic: false },
+      { id: 14, name: "Eğitim", type: "expense", color: "#10b981", isBasic: false },
+      { id: 15, name: "Spor", type: "expense", color: "#f43f5e", isBasic: false },
+      { id: 16, name: "Bakım & Kozmetik", type: "expense", color: "#d946ef", isBasic: false },
+      { id: 17, name: "Ev Eşyaları", type: "expense", color: "#64748b", isBasic: false },
+      { id: 18, name: "Hediye & Bağış", type: "expense", color: "#a855f7", isBasic: false },
+      { id: 19, name: "Tatil & Seyahat", type: "expense", color: "#fb923c", isBasic: false },
+      { id: 20, name: "Sigorta", type: "expense", color: "#4f46e5", isBasic: false },
+      { id: 21, name: "Diğer Giderler", type: "expense", color: "#94a3b8", isBasic: false },
     ];
   } catch (error) {
     console.error("Get categories error:", error);
