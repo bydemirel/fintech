@@ -27,6 +27,7 @@ export default function NewTransactionPage() {
   const [success, setSuccess] = useState(false);
   const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   // Date locale based on selected language
   const dateLocale = language === 'tr' ? tr : enUS;
@@ -84,6 +85,7 @@ export default function NewTransactionPage() {
         ...prev,
         date,
       }));
+      setDatePopoverOpen(false); // Tarih seçildiğinde popover'ı kapat
     }
   };
 
@@ -269,7 +271,7 @@ export default function NewTransactionPage() {
                 {/* Tarih Seçimi */}
                 <div className="space-y-2">
                   <Label htmlFor="date">{t("date")}</Label>
-                  <Popover>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"

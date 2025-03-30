@@ -45,6 +45,8 @@ const FilterForm = ({
 }) => {
   const { t, language } = useTranslation();
   const dateLocale = language === 'tr' ? tr : enUS;
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
   
   // Tarih seçimi işlevi
   const handleDateSelect = (field: string, date: Date | undefined) => {
@@ -53,6 +55,13 @@ const FilterForm = ({
         ...filters,
         [field]: date,
       });
+      
+      // Popover'ı kapat
+      if (field === "startDate") {
+        setStartDateOpen(false);
+      } else if (field === "endDate") {
+        setEndDateOpen(false);
+      }
     }
   };
 
@@ -61,7 +70,7 @@ const FilterForm = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>{t("startDate")}</Label>
-          <Popover>
+          <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -92,7 +101,7 @@ const FilterForm = ({
         </div>
         <div className="space-y-2">
           <Label>{t("endDate")}</Label>
-          <Popover>
+          <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
