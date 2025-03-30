@@ -324,7 +324,7 @@ export default function NewTransactionPage() {
                                 className="w-4 h-4 rounded-full"
                                 style={{ backgroundColor: category.color }}
                               ></div>
-                              <span>{category.name}</span>
+                              <span>{category.translationKey ? t(category.translationKey) : category.name}</span>
                             </div>
                           </div>
                         ))}

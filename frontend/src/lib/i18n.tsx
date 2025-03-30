@@ -111,7 +111,30 @@ const translations = {
     
     // Hata mesajları
     errorLoadingData: "Veriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.",
-    errorFilteringTransactions: "İşlemler filtrelenirken bir hata oluştu."
+    errorFilteringTransactions: "İşlemler filtrelenirken bir hata oluştu.",
+    
+    // Kategoriler
+    categorySalary: "Maaş",
+    categoryExtraIncome: "Ek Gelir",
+    categoryGiftIncome: "Hediye",
+    categoryInvestment: "Yatırım",
+    categoryGrocery: "Market",
+    categoryRent: "Kira",
+    categoryBills: "Faturalar",
+    categoryEntertainment: "Eğlence",
+    categoryHealth: "Sağlık",
+    categoryTransport: "Ulaşım",
+    categoryClothing: "Giyim",
+    categoryRestaurant: "Restoran",
+    categoryElectronics: "Elektronik",
+    categoryEducation: "Eğitim",
+    categorySports: "Spor",
+    categoryBeauty: "Bakım & Kozmetik",
+    categoryHomeItems: "Ev Eşyaları",
+    categoryGiftsDonations: "Hediye & Bağış",
+    categoryTravel: "Tatil & Seyahat",
+    categoryInsurance: "Sigorta",
+    categoryOtherExpenses: "Diğer Giderler",
   },
   en: {
     // General
@@ -219,7 +242,30 @@ const translations = {
     
     // Error messages
     errorLoadingData: "Error loading data. Please refresh the page.",
-    errorFilteringTransactions: "Error filtering transactions."
+    errorFilteringTransactions: "Error filtering transactions.",
+    
+    // Categories
+    categorySalary: "Salary",
+    categoryExtraIncome: "Extra Income",
+    categoryGiftIncome: "Gift",
+    categoryInvestment: "Investment",
+    categoryGrocery: "Grocery",
+    categoryRent: "Rent",
+    categoryBills: "Bills",
+    categoryEntertainment: "Entertainment",
+    categoryHealth: "Health",
+    categoryTransport: "Transportation",
+    categoryClothing: "Clothing",
+    categoryRestaurant: "Restaurant",
+    categoryElectronics: "Electronics",
+    categoryEducation: "Education",
+    categorySports: "Sports",
+    categoryBeauty: "Beauty & Care",
+    categoryHomeItems: "Home Items",
+    categoryGiftsDonations: "Gifts & Donations",
+    categoryTravel: "Travel & Vacation",
+    categoryInsurance: "Insurance",
+    categoryOtherExpenses: "Other Expenses",
   }
 };
 

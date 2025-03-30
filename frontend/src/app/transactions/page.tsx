@@ -143,7 +143,7 @@ const FilterForm = ({
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: category.color }}
                     ></div>
-                    <span>{category.name}</span>
+                    <span>{category.translationKey ? t(category.translationKey) : category.name}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -430,7 +430,7 @@ export default function TransactionsPage() {
       const row = [
         `"${formattedDate}"`,
         `"${transaction.description}"`,
-        `"${category?.name || "Bilinmeyen"}"`,
+        `"${category?.translationKey ? t(category.translationKey) : category?.name || "Bilinmeyen"}"`,
         `"${formatCurrency(transaction.amount)}"`,
         `"${type}"`,
       ];
@@ -701,9 +701,9 @@ export default function TransactionsPage() {
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: category?.color }}
+                                style={{ backgroundColor: category?.color || "#999" }}
                               ></div>
-                              <span>{category?.name || t("unknownCategory")}</span>
+                              <span>{category?.translationKey ? t(category.translationKey) : category?.name || t("unknownCategory")}</span>
                             </div>
                           </TableCell>
                           <TableCell
