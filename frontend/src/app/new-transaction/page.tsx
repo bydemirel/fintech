@@ -280,7 +280,7 @@ export default function NewTransactionPage() {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.date ? (
-                          format(formData.date, "PPP", { locale: dateLocale })
+                          format(formData.date, "d MMM yyyy", { locale: dateLocale })
                         ) : (
                           <span>{t("selectDate")}</span>
                         )}
@@ -293,6 +293,7 @@ export default function NewTransactionPage() {
                         onSelect={handleDateChange}
                         initialFocus
                         locale={dateLocale}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>

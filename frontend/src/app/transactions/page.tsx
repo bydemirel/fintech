@@ -72,7 +72,7 @@ const FilterForm = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.startDate ? (
-                  format(filters.startDate, "PPP", { locale: dateLocale })
+                  format(filters.startDate, "d MMM yyyy", { locale: dateLocale })
                 ) : (
                   <span>{t("selectDate")}</span>
                 )}
@@ -84,6 +84,8 @@ const FilterForm = ({
                 selected={filters.startDate}
                 onSelect={(date) => handleDateSelect("startDate", date)}
                 initialFocus
+                locale={dateLocale}
+                className="rounded-md border"
               />
             </PopoverContent>
           </Popover>
@@ -101,7 +103,7 @@ const FilterForm = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.endDate ? (
-                  format(filters.endDate, "PPP", { locale: dateLocale })
+                  format(filters.endDate, "d MMM yyyy", { locale: dateLocale })
                 ) : (
                   <span>{t("selectDate")}</span>
                 )}
@@ -113,6 +115,8 @@ const FilterForm = ({
                 selected={filters.endDate}
                 onSelect={(date) => handleDateSelect("endDate", date)}
                 initialFocus
+                locale={dateLocale}
+                className="rounded-md border"
               />
             </PopoverContent>
           </Popover>
@@ -388,7 +392,7 @@ export default function TransactionsPage() {
   // Tarih formatı
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return format(date, "dd MMM yyyy", { locale: dateLocale });
+    return format(date, "d MMM yyyy", { locale: dateLocale });
   };
 
   // İşlem silme
@@ -634,7 +638,7 @@ export default function TransactionsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead
-                      className="w-[120px] cursor-pointer"
+                      className="w-[140px] cursor-pointer"
                       onClick={() => handleSort("date")}
                     >
                       <div className="flex items-center gap-1">
@@ -693,7 +697,7 @@ export default function TransactionsPage() {
 
                       return (
                         <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium whitespace-nowrap">
                             {formatDate(transaction.date)}
                           </TableCell>
                           <TableCell>{transaction.description}</TableCell>
