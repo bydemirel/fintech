@@ -362,7 +362,12 @@ export default function NewTransactionPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between">
+              <CardFooter className={cn(
+                "flex justify-between",
+                "pt-6", // Varsayılan padding
+                "md:pt-8", // Orta ekranlarda daha fazla padding
+                "lg:pt-10" // Büyük ekranlarda en fazla padding
+              )}>
                 <Button
                   type="button"
                   variant="outline"
